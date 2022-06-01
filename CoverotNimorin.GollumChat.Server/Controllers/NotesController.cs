@@ -10,35 +10,35 @@ namespace CoverotNimorin.GollumChat.Server.Controllers;
 [ApiController]
 [CustomAuthorize]
 [Route("/api/[controller]")]
-public class NotesController : ApiControllerBase
+public class NotesController : ControllerBase
 {
-    private readonly INotesService _notesService;
+    private readonly INoteService _noteService;
 
-    public NotesController(INotesService notesService)
+    public NotesController(INoteService noteService)
     {
-        _notesService = notesService;
+        _noteService = noteService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAllByUser()
     {
-        IEnumerable<Note> notes = await _notesService.GetAll(CurrentUser!);
+        IEnumerable<Note> notes = await _noteService.GetAllByCurrentUser();
         return Ok(new ResultPayload<IEnumerable<Note>>(notes));
     }
     
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        Note note = await _notesService.GetById(id, CurrentUser!);
+        Note note = await _noteService.GetById(id);
         return Ok(new ResultPayload<Note>(note));
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateNoteRequest model)
     {
-        CreateNoteResponse noteResponse = await _notesService.AddNoteAsync(model, CurrentUser!);
+        CreateNoteResponse noteResponse = await _noteService.AddNoteAsync(model);
         return Created(
-            new Uri($"api/Notes/{noteResponse.Id}"),
+            new Uri($"/api/Notes/{noteResponse.Id}"),
             new ResultPayload<CreateNoteResponse>(noteResponse)
         );
     }
@@ -46,14 +46,14 @@ public class NotesController : ApiControllerBase
     [HttpPut]
     public async Task<IActionResult> Update(UpdateNoteRequest model)
     {
-        await _notesService.UpdateNoteAsync(model, CurrentUser!);
+        await _noteService.UpdateNoteAsync(model);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
-        await _notesService.DeleteNoteAsync(id, CurrentUser!);
+        await _noteService.DeleteNoteAsync(id);
         return NoContent();
     }
 }

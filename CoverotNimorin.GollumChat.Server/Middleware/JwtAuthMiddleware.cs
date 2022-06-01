@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using CoverotNimorin.GollumChat.Server.Configuration;
+using CoverotNimorin.GollumChat.Server.Constants;
 using CoverotNimorin.GollumChat.Server.Contracts.Repositories.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -51,6 +52,6 @@ public class JwtAuthMiddleware
         string userId = jwtToken.Claims.First(x => x.Type == "id").Value;
 
         // attach user to context on successful jwt validation
-        context.Items["User"] = await userRepository.GetByIdAsync(userId);
+        context.Items[AuthConstants.HttpContextCurrentUser] = await userRepository.GetByIdAsync(userId);
     }
 }

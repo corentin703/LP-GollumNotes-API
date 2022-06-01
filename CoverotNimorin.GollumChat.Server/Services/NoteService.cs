@@ -7,10 +7,11 @@ using CoverotNimorin.GollumChat.Server.Models.Notes;
 
 namespace CoverotNimorin.GollumChat.Server.Services;
 
-public class NotesService : INotesService
+public class NoteService : INoteService
 {
     private readonly INoteRepository _noteRepository;
-
+    private readonly ICurrentUserService _currentUserService;
+    
     private readonly Func<Note, Note> _convertToResponseExpression = note => new Note()
     {
         Id = note.Id,
@@ -20,14 +21,17 @@ public class NotesService : INotesService
         LastModifiedAt = note.LastModifiedAt?.ToLocalTime(),
     };
 
-    public NotesService(INoteRepository noteRepository)
+    public NoteService(INoteRepository noteRepository, ICurrentUserService currentUserService)
     {
         _noteRepository = noteRepository;
+        _currentUserService = currentUserService;
     }
 
-    public async Task<IEnumerable<Note>> GetAll(User user)
+    public async Task<IEnumerable<Note>> GetAllByCurrentUser()
     {
-        IEnumerable<Note> notes = await _noteRepository.GetAllByUserAsync(user.Id);
+        string userId = _currentUserService.GetRequiredUser().Id;
+        
+        IEnumerable<Note> notes = await _noteRepository.GetAllByUserAsync(userId);
         notes = notes
             .Select(_convertToResponseExpression)
             .ToImmutableList();
@@ -35,19 +39,21 @@ public class NotesService : INotesService
         return notes;
     }
 
-    public async Task<Note> GetById(string id, User user)
+    public async Task<Note> GetById(string id)
     {
-        Note note = await GetNoteWithOwnerCheck(id, user);
+        Note note = await GetNoteWithOwnerCheck(id);
         return _convertToResponseExpression(note);
     }
 
-    public async Task<CreateNoteResponse> AddNoteAsync(CreateNoteRequest model, User user)
+    public async Task<CreateNoteResponse> AddNoteAsync(CreateNoteRequest model)
     {
+        string userId = _currentUserService.GetRequiredUser().Id;
+        
         Note note = new Note()
         {
             Title = model.Title,
             Content = model.Content,
-            UserId = user.Id,
+            UserId = userId,
             CreatedAt = DateTime.UtcNow,
         };
         
@@ -57,9 +63,9 @@ public class NotesService : INotesService
         return new CreateNoteResponse(note);
     }
 
-    public async Task UpdateNoteAsync(UpdateNoteRequest model, User user)
+    public async Task UpdateNoteAsync(UpdateNoteRequest model)
     {
-        Note existingNote = await GetNoteWithOwnerCheck(model.Id, user);
+        Note existingNote = await GetNoteWithOwnerCheck(model.Id);
 
         if (!string.IsNullOrEmpty(model.Title))
             existingNote.Title = model.Title;
@@ -73,19 +79,20 @@ public class NotesService : INotesService
         await _noteRepository.SaveChangesAsync();
     }
 
-    public async Task DeleteNoteAsync(string id, User user)
+    public async Task DeleteNoteAsync(string id)
     {
-        Note existingNote = await GetNoteWithOwnerCheck(id, user);
+        Note existingNote = await GetNoteWithOwnerCheck(id);
 
         _noteRepository.Delete(existingNote.Id);
         await _noteRepository.SaveChangesAsync();
     }
 
-    private async Task<Note> GetNoteWithOwnerCheck(string id, User user)
+    private async Task<Note> GetNoteWithOwnerCheck(string id)
     {
+        string userId = _currentUserService.GetRequiredUser().Id;
         Note note = await _noteRepository.GetByIdAsync(id);
         
-        if (note.UserId != user.Id)
+        if (note.UserId != userId)
             throw new NoteNotOwnedByUserException();
 
         return note;
