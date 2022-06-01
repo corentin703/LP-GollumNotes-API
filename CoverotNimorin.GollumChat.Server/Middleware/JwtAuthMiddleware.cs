@@ -1,8 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Text;
 using CoverotNimorin.GollumChat.Server.Configuration;
-using CoverotNimorin.GollumChat.Server.Contracts;
+using CoverotNimorin.GollumChat.Server.Contracts.Repositories.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -19,17 +18,17 @@ public class JwtAuthMiddleware
         _appConfiguration = appSettings.Value;
     }
 
-    public async Task Invoke(HttpContext context, IUserService userService)
+    public async Task Invoke(HttpContext context, IUserRepository userRepository)
     {
         string? token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
         if (token != null)
-            await AttachUserToContextAsync(context, userService, token);
+            await AttachUserToContextAsync(context, userRepository, token);
 
         await _next(context);
     }
 
-    private async Task AttachUserToContextAsync(HttpContext context, IUserService userService, string token)
+    private async Task AttachUserToContextAsync(HttpContext context, IUserRepository userRepository, string token)
     {
         JwtSecurityTokenHandler tokenHandler = new();
         byte[] key = Encoding.ASCII.GetBytes(_appConfiguration.Jwt.Secret);
@@ -52,6 +51,6 @@ public class JwtAuthMiddleware
         string userId = jwtToken.Claims.First(x => x.Type == "id").Value;
 
         // attach user to context on successful jwt validation
-        context.Items["User"] = await userService.GetByIdAsync(userId);
+        context.Items["User"] = await userRepository.GetByIdAsync(userId);
     }
 }

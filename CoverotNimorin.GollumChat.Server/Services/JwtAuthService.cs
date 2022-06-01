@@ -3,6 +3,8 @@ using System.Security.Claims;
 using System.Text;
 using CoverotNimorin.GollumChat.Server.Configuration;
 using CoverotNimorin.GollumChat.Server.Contracts;
+using CoverotNimorin.GollumChat.Server.Contracts.Repositories.Entities;
+using CoverotNimorin.GollumChat.Server.Contracts.Services;
 using CoverotNimorin.GollumChat.Server.Entities;
 using CoverotNimorin.GollumChat.Server.Exceptions;
 using CoverotNimorin.GollumChat.Server.Models.Auth;
@@ -14,17 +16,17 @@ namespace CoverotNimorin.GollumChat.Server.Services;
 public class JwtAuthService : IAuthService
 {
     private readonly AppConfiguration _appConfiguration;
-    private readonly IUserService _userService;
+    private readonly IUserRepository _userRepository;
 
-    public JwtAuthService(IOptions<AppConfiguration> appConfiguration, IUserService userService)
+    public JwtAuthService(IOptions<AppConfiguration> appConfiguration, IUserRepository userRepository)
     {
         _appConfiguration = appConfiguration.Value;
-        _userService = userService;
+        _userRepository = userRepository;
     }
 
     public async Task<RegisterResponse?> RegisterAsync(RegisterRequest model)
     {
-        User? user = await _userService.GetByUsernameAsync(model.Username);
+        User? user = await _userRepository.GetByUsernameAsync(model.Username);
 
         if (user != null)
             throw new UserAlreadyExistsException();
@@ -35,14 +37,15 @@ public class JwtAuthService : IAuthService
             Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
         };
 
-        await _userService.AddUserAsync(user);
+        _userRepository.Add(user);
+        await _userRepository.SaveChangesAsync();
 
         return new RegisterResponse(user);
     }
     
     public async Task<LoginResponse?> LoginAsync(LoginRequest model)
     {
-        User? user = await _userService.GetByUsernameAsync(model.Username);
+        User? user = await _userRepository.GetByUsernameAsync(model.Username);
 
         // return null if user not found
         if (user == null)

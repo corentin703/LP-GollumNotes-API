@@ -1,6 +1,6 @@
 using CoverotNimorin.GollumChat.Server.Models.Auth;
 
-namespace CoverotNimorin.GollumChat.Server.Contracts;
+namespace CoverotNimorin.GollumChat.Server.Contracts.Services;
 
 public interface IAuthService
 {

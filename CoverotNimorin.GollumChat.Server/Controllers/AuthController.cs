@@ -1,4 +1,5 @@
 using CoverotNimorin.GollumChat.Server.Contracts;
+using CoverotNimorin.GollumChat.Server.Contracts.Services;
 using CoverotNimorin.GollumChat.Server.Models.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;

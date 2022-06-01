@@ -1,9 +1,9 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using CoverotNimorin.GollumChat.Server.Configuration;
 using CoverotNimorin.GollumChat.Server.Contexts;
-using CoverotNimorin.GollumChat.Server.Contracts;
+using CoverotNimorin.GollumChat.Server.Contracts.Repositories.Entities;
+using CoverotNimorin.GollumChat.Server.Contracts.Services;
 using CoverotNimorin.GollumChat.Server.Middleware;
+using CoverotNimorin.GollumChat.Server.Repositories.Entities;
 using CoverotNimorin.GollumChat.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,8 +18,11 @@ builder.Services.AddNpgsql<GollumNotesContext>(
     builder.Configuration.GetConnectionString("Default")
 );
 
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, JwtAuthService>();
+
+builder.Services.AddScoped<INoteRepository, NoteRepository>();
+builder.Services.AddScoped<IPictureRepository, PictureRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services
     .AddControllers()
