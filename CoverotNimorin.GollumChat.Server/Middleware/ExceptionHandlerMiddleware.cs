@@ -29,7 +29,7 @@ public class ExceptionHandlerMiddleware
         {
             HttpResponse response = context.Response;
             response.ContentType = "application/json";
-            ResultPayload responseModel = new ResultPayload(exception.Message);
+            ErrorPayload responsePayload = new ErrorPayload(exception.Message);
 
             string? targetClassName = 
                 exception.TargetSite?.ReflectedType?.FullName 
@@ -59,7 +59,7 @@ public class ExceptionHandlerMiddleware
                     break;
             }
 
-            string result = JsonSerializer.Serialize(responseModel);
+            string result = JsonSerializer.Serialize(responsePayload);
             await response.WriteAsync(result);
         }
     }

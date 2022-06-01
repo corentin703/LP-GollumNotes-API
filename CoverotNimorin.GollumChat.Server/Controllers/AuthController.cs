@@ -6,7 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CoverotNimorin.GollumChat.Server.Controllers;
 
-[Controller]
+[ApiController]
 [Route("/api/[controller]")]
 public class AuthController : ControllerBase
 {
@@ -18,7 +18,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> LoginAsync([FromBody] LoginRequest model)
+    public async Task<IActionResult> LoginAsync(LoginRequest model)
     {
         LoginResponse? response = await _authService.LoginAsync(model);
         if (response == null)
@@ -28,12 +28,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest model)
+    public async Task<IActionResult> RegisterAsync(RegisterRequest model)
     {
-        RegisterResponse? response = await _authService.RegisterAsync(model);
-        if (response == null)
-            return BadRequest("Erreur durant l'inscription");
-
+        RegisterResponse response = await _authService.RegisterAsync(model);
         return Ok(response);
     }
 }

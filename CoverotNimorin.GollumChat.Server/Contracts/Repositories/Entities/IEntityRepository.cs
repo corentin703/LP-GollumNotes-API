@@ -11,8 +11,8 @@ public interface IEntityRepository<TEntity> where TEntity : BaseEntity
     public List<TEntity> GetAll();
     public Task<List<TEntity>> GetAllAsync();
 
-    public TEntity? GetById(string id);
-    public Task<TEntity?> GetByIdAsync(string id);
+    public TEntity GetById(string id);
+    public Task<TEntity> GetByIdAsync(string id);
 
     public Task SaveChangesAsync();
 }

@@ -56,14 +56,24 @@ public abstract class BaseEntityRepository<TEntity> : IEntityRepository<TEntity>
         return await DbSet.ToListAsync();
     }
 
-    public virtual TEntity? GetById(string id)
+    public virtual TEntity GetById(string id)
     {
-        return DbSet.FirstOrDefault(entity => entity.Id == id);
+        TEntity? entity = DbSet.FirstOrDefault(entity => entity.Id == id);
+
+        if (entity == null)
+            throw new EntityNotFoundException(id);
+
+        return entity;
     }
     
-    public virtual async Task<TEntity?> GetByIdAsync(string id)
+    public virtual async Task<TEntity> GetByIdAsync(string id)
     {
-        return await DbSet.FirstOrDefaultAsync(entity => entity.Id == id);
+        TEntity? entity = await DbSet.FirstOrDefaultAsync(entity => entity.Id == id);
+
+        if (entity == null)
+            throw new EntityNotFoundException(id);
+
+        return entity;
     }
 
     public async Task SaveChangesAsync()

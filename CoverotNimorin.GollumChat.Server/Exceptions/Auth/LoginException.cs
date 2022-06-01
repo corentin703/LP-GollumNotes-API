@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace CoverotNimorin.GollumChat.Server.Exceptions;
+namespace CoverotNimorin.GollumChat.Server.Exceptions.Auth;
 
 public class LoginException : WebException
 {

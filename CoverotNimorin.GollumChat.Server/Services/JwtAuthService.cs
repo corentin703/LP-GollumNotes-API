@@ -2,11 +2,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using CoverotNimorin.GollumChat.Server.Configuration;
-using CoverotNimorin.GollumChat.Server.Contracts;
 using CoverotNimorin.GollumChat.Server.Contracts.Repositories.Entities;
 using CoverotNimorin.GollumChat.Server.Contracts.Services;
 using CoverotNimorin.GollumChat.Server.Entities;
 using CoverotNimorin.GollumChat.Server.Exceptions;
+using CoverotNimorin.GollumChat.Server.Exceptions.Auth;
 using CoverotNimorin.GollumChat.Server.Models.Auth;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -24,12 +24,19 @@ public class JwtAuthService : IAuthService
         _userRepository = userRepository;
     }
 
-    public async Task<RegisterResponse?> RegisterAsync(RegisterRequest model)
+    public async Task<RegisterResponse> RegisterAsync(RegisterRequest model)
     {
-        User? user = await _userRepository.GetByUsernameAsync(model.Username);
+        User? user;
 
-        if (user != null)
+        try
+        {
+            await _userRepository.GetByUsernameAsync(model.Username);
             throw new UserAlreadyExistsException();
+        }
+        catch (UserNotFoundByUsernameException)
+        {
+            //
+        }
 
         user = new User()
         {
@@ -43,14 +50,20 @@ public class JwtAuthService : IAuthService
         return new RegisterResponse(user);
     }
     
-    public async Task<LoginResponse?> LoginAsync(LoginRequest model)
+    public async Task<LoginResponse> LoginAsync(LoginRequest model)
     {
-        User? user = await _userRepository.GetByUsernameAsync(model.Username);
+        User user;
 
-        // return null if user not found
-        if (user == null)
+        try
+        {
+            user = await _userRepository.GetByUsernameAsync(model.Username);
+        }
+        catch (UserNotFoundByUsernameException)
+        {
+            // Ne pas révéler la cause de l'échec de la connexion
             throw new LoginException();
-        
+        }
+
         if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
             throw new LoginException();
 

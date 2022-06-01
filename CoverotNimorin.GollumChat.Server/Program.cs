@@ -18,11 +18,12 @@ builder.Services.AddNpgsql<GollumNotesContext>(
     builder.Configuration.GetConnectionString("Default")
 );
 
-builder.Services.AddScoped<IAuthService, JwtAuthService>();
-
 builder.Services.AddScoped<INoteRepository, NoteRepository>();
 builder.Services.AddScoped<IPictureRepository, PictureRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<IAuthService, JwtAuthService>();
+builder.Services.AddScoped<INotesService, NotesService>();
 
 builder.Services
     .AddControllers()
