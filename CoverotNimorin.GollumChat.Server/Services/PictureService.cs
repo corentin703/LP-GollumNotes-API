@@ -16,6 +16,7 @@ public class PictureService : IPictureService
     private readonly Func<Picture, Picture> _convertToResponseExpression = picture => new Picture()
     {
         Id = picture.Id,
+        ContentType = picture.ContentType,
         CreatedAt = picture.CreatedAt.ToLocalTime(),
     };
     
@@ -60,6 +61,7 @@ public class PictureService : IPictureService
         Picture picture = new()
         {
             Content = content,
+            ContentType = model.File.ContentType,
             NoteId = note.Id,
             CreatedAt = DateTime.UtcNow,
         };

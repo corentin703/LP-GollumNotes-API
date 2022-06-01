@@ -1,14 +1,18 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using CoverotNimorin.GollumChat.Server.Entities;
 
 namespace CoverotNimorin.GollumChat.Server.Models.Notes;
 
 public class CreateNoteResponse
 {
-    public string Id { get; set; }
-    public string Title { get; set; }
-    public string Content { get; set; }
-    public DateTime CreatedAt { get; set; }
+    [JsonPropertyName("id")] public string Id { get; set; }
+
+    [JsonPropertyName("title")] public string Title { get; set; }
+    
+    [JsonPropertyName("content")] public string Content { get; set; }
+
+    [JsonPropertyName("createdAt")] public DateTime CreatedAt { get; set; }
 
     public CreateNoteResponse(Note note)
     {
