@@ -56,6 +56,11 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
+if (builder.Environment.EnvironmentName == "Heroku")
+{
+    app.Services.GetRequiredService<ILogger<Program>>().LogInformation("Running on Heroku");    
+}
+
 app.UseCors(x => x
     .AllowAnyOrigin()
     .AllowAnyMethod()
