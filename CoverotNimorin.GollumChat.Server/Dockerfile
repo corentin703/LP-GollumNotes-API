@@ -17,4 +17,4 @@ RUN dotnet publish "CoverotNimorin.GollumChat.Server.csproj" -c Release -o /app/
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CoverotNimorin.GollumChat.Server.dll"]
+ENTRYPOINT ["ASPNETCORE_URLS=http://*:$PORT", "dotnet", "CoverotNimorin.GollumChat.Server.dll"]
