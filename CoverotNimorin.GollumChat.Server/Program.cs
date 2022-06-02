@@ -14,9 +14,11 @@ builder.Services.Configure<AppConfiguration>(
     builder.Configuration.GetSection("AppSettings")
 );
 
-builder.Services.AddNpgsql<GollumNotesContext>(
-    builder.Configuration.GetConnectionString("Default")
-);
+string databaseConnexionString = builder.Configuration.GetConnectionString("Default");
+if (builder.Environment.EnvironmentName == "Heroku")
+    databaseConnexionString = GetHerokuConnectionString();
+
+builder.Services.AddNpgsql<GollumNotesContext>(databaseConnexionString);
 
 builder.Services.AddHttpContextAccessor();
 
@@ -76,3 +78,17 @@ app.UseMiddleware<JwtAuthMiddleware>();
 app.MapControllers();
 
 app.Run();
+
+string GetHerokuConnectionString()
+{
+    string? connectionUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    if (connectionUrl == null)
+        throw new Exception("No Database URL for Heroku environment");
+
+    Uri databaseUri = new(connectionUrl);
+
+    string db = databaseUri.LocalPath.TrimStart('/');
+    string[] userInfo = databaseUri.UserInfo.Split(':', StringSplitOptions.RemoveEmptyEntries);
+
+    return $"User ID={userInfo[0]};Password={userInfo[1]};Host={databaseUri.Host};Port={databaseUri.Port};Database={db};Pooling=true;SSL Mode=Require;Trust Server Certificate=True;";
+}

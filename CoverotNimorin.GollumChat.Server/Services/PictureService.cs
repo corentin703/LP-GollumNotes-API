@@ -4,6 +4,7 @@ using CoverotNimorin.GollumChat.Server.Contracts.Services;
 using CoverotNimorin.GollumChat.Server.Entities;
 using CoverotNimorin.GollumChat.Server.Exceptions;
 using CoverotNimorin.GollumChat.Server.Models.Pictures;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CoverotNimorin.GollumChat.Server.Services;
 
@@ -44,9 +45,9 @@ public class PictureService : IPictureService
         return await GetPictureWithOwnerCheckAsync(noteId, pictureId);
     }
 
-    public async Task<CreatePictureResponse> AddPictureAsync(CreatePictureRequest model)
+    public async Task<CreatePictureResponse> AddPictureAsync(string noteId, [FromForm] CreatePictureRequest model)
     {
-        Note note = await GetNoteWithOwnerCheckAsync(model.NoteId);
+        Note note = await GetNoteWithOwnerCheckAsync(noteId);
         byte[] content = new byte[model.File.Length];
 
         int imageReadResult;

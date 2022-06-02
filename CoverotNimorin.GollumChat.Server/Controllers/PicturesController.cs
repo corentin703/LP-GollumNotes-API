@@ -34,12 +34,11 @@ public class PicturesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(string noteId, [FromForm] CreatePictureRequest model)
+    public async Task<IActionResult> Create([FromRoute] string noteId, [FromForm] CreatePictureRequest model)
     {
-        model.NoteId = noteId;
-        CreatePictureResponse pictureResponse = await _pictureService.AddPictureAsync(model);
+        CreatePictureResponse pictureResponse = await _pictureService.AddPictureAsync(noteId, model);
         return Created(
-            new Uri($"/api/Pictures/{model.NoteId}/{pictureResponse.Id}"),
+            new Uri($"/api/Pictures/{noteId}/{pictureResponse.Id}"),
             new ResultPayload<CreatePictureResponse>(pictureResponse)
         );
     }
