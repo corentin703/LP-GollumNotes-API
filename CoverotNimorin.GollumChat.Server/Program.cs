@@ -1,3 +1,4 @@
+using System.Net;
 using CoverotNimorin.GollumChat.Server.Configuration;
 using CoverotNimorin.GollumChat.Server.Contexts;
 using CoverotNimorin.GollumChat.Server.Contracts.Repositories.Entities;
@@ -7,6 +8,21 @@ using CoverotNimorin.GollumChat.Server.Repositories.Entities;
 using CoverotNimorin.GollumChat.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    IConfigurationSection kestrelSection = builder.Configuration.GetSection("Kestrel");
+    if (builder.Environment.EnvironmentName == "Heroku")
+    {
+        string? portStr = System.Environment.GetEnvironmentVariable("PORT");
+        if (!int.TryParse(portStr, out int port))
+            port = 80;
+            
+        serverOptions.ListenAnyIP(port);
+    }
+    else
+        serverOptions.Configure(kestrelSection);
+});
 
 // Add services to the container.
 
