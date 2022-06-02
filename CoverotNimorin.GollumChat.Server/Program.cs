@@ -56,10 +56,9 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-if (builder.Environment.EnvironmentName == "Heroku")
-{
-    app.Services.GetRequiredService<ILogger<Program>>().LogInformation("Running on Heroku");    
-}
+ILogger<Program> logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+logger.LogInformation("Running on environment {Env}", app.Environment.EnvironmentName);    
 
 app.UseCors(x => x
     .AllowAnyOrigin()
@@ -73,6 +72,7 @@ using (var scope = app.Services.CreateScope())
 
     GollumNotesContext context = services.GetRequiredService<GollumNotesContext>();
     context.Database.EnsureCreated();
+    logger.LogInformation("Database up to work !");
 }
 
 app.UseHttpsRedirection();
