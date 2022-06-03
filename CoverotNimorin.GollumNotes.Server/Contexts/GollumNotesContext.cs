@@ -18,6 +18,17 @@ public class GollumNotesContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Note>().ToTable("Notes");
+            
+        modelBuilder.Entity<Note>()
+            .HasMany<Picture>(note => note.Pictures)
+            .WithOne(picture => picture.Note)
+            .HasForeignKey(picture => picture.NoteId);
+        
+        modelBuilder.Entity<Note>()
+            .HasOne<User>(note => note.User)
+            .WithMany(user => user.Notes)
+            .HasForeignKey(note => note.UserId);
+        
         modelBuilder.Entity<Picture>().ToTable("Pictures");
         modelBuilder.Entity<User>().ToTable("Users");
     }
