@@ -11,15 +11,8 @@ public class NoteService : INoteService
 {
     private readonly INoteRepository _noteRepository;
     private readonly ICurrentUserService _currentUserService;
-    
-    private readonly Func<Note, Note> _convertToResponseExpression = note => new Note()
-    {
-        Id = note.Id,
-        Title = note.Title,
-        Content = note.Content,
-        CreatedAt = note.CreatedAt.ToLocalTime(),
-        LastModifiedAt = note.LastModifiedAt?.ToLocalTime(),
-    };
+
+    private readonly Func<Note, NoteResponse> _convertToResponseExpression = note => new NoteResponse(note);
 
     public NoteService(INoteRepository noteRepository, ICurrentUserService currentUserService)
     {
@@ -27,19 +20,17 @@ public class NoteService : INoteService
         _currentUserService = currentUserService;
     }
 
-    public async Task<IEnumerable<Note>> GetAllByCurrentUser()
+    public async Task<IEnumerable<NoteResponse>> GetAllByCurrentUser()
     {
         string userId = _currentUserService.GetRequiredUser().Id;
         
         IEnumerable<Note> notes = await _noteRepository.GetAllByUserAsync(userId);
-        notes = notes
+        return notes
             .Select(_convertToResponseExpression)
             .ToImmutableList();
-
-        return notes;
     }
 
-    public async Task<Note> GetById(string id)
+    public async Task<NoteResponse> GetById(string id)
     {
         Note note = await GetNoteWithOwnerCheck(id);
         return _convertToResponseExpression(note);

@@ -22,15 +22,15 @@ public class NotesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllByUser()
     {
-        IEnumerable<Note> notes = await _noteService.GetAllByCurrentUser();
-        return Ok(new ResultPayload<IEnumerable<Note>>(notes));
+        IEnumerable<NoteResponse> notes = await _noteService.GetAllByCurrentUser();
+        return Ok(new ResultPayload<IEnumerable<NoteResponse>>(notes));
     }
     
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        Note note = await _noteService.GetById(id);
-        return Ok(new ResultPayload<Note>(note));
+        NoteResponse note = await _noteService.GetById(id);
+        return Ok(new ResultPayload<NoteResponse>(note));
     }
 
     [HttpPost]

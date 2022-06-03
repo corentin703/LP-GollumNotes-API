@@ -14,12 +14,7 @@ public class PictureService : IPictureService
     private readonly INoteRepository _noteRepository;
     private readonly IPictureRepository _pictureRepository;
     
-    private readonly Func<Picture, Picture> _convertToResponseExpression = picture => new Picture()
-    {
-        Id = picture.Id,
-        ContentType = picture.ContentType,
-        CreatedAt = picture.CreatedAt.ToLocalTime(),
-    };
+    private readonly Func<Picture, PictureResponse> _convertToResponseExpression = picture => new PictureResponse(picture);
     
     public PictureService(
         ICurrentUserService currentUserService,
@@ -32,17 +27,20 @@ public class PictureService : IPictureService
         _pictureRepository = pictureRepository;
     }
 
-    public async Task<IEnumerable<Picture>> GetAllByUserNote(string noteId)
+    public async Task<IEnumerable<PictureResponse>> GetAllByUserNote(string noteId)
     {
         Note note = await GetNoteWithOwnerCheckAsync(noteId);
         IEnumerable<Picture> pictures = await _pictureRepository.GetAllByNoteAsync(note);
         
-        return pictures.Select(_convertToResponseExpression).ToImmutableList();
+        return pictures
+            .Select(_convertToResponseExpression)
+            .ToImmutableList();
     }
 
-    public async Task<Picture> GetById(string noteId, string pictureId)
+    public async Task<PictureFullResponse> GetById(string noteId, string pictureId)
     {
-        return await GetPictureWithOwnerCheckAsync(noteId, pictureId);
+        Picture picture = await GetPictureWithOwnerCheckAsync(noteId, pictureId);
+        return new PictureFullResponse(picture);
     }
 
     public async Task<CreatePictureResponse> AddPictureAsync(string noteId, [FromForm] CreatePictureRequest model)

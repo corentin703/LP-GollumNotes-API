@@ -22,14 +22,14 @@ public class PicturesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllByUserNote(string noteId)
     {
-        IEnumerable<Picture> pictures = await _pictureService.GetAllByUserNote(noteId);
-        return Ok(new ResultPayload<IEnumerable<Picture>>(pictures));
+        IEnumerable<PictureResponse> pictures = await _pictureService.GetAllByUserNote(noteId);
+        return Ok(new ResultPayload<IEnumerable<PictureResponse>>(pictures));
     }
     
     [HttpGet("{pictureId}")]
     public async Task<IActionResult> GetById(string noteId, string pictureId)
     {
-        Picture picture = await _pictureService.GetById(noteId, pictureId);
+        PictureFullResponse picture = await _pictureService.GetById(noteId, pictureId);
         return File(picture.Content, picture.ContentType);
     }
 
