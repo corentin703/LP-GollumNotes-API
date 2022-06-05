@@ -43,7 +43,7 @@ public class PictureService : IPictureService
         return new PictureFullResponse(picture);
     }
 
-    public async Task<CreatePictureResponse> AddPictureAsync(string noteId, [FromForm] CreatePictureRequest model)
+    public async Task<PictureResponse> AddPictureAsync(string noteId, [FromForm] CreatePictureRequest model)
     {
         Note note = await GetNoteWithOwnerCheckAsync(noteId);
         byte[] content = new byte[model.File.Length];
@@ -68,7 +68,7 @@ public class PictureService : IPictureService
         _pictureRepository.Add(picture);
         await _pictureRepository.SaveChangesAsync();
 
-        return new CreatePictureResponse(picture);
+        return new PictureResponse(picture);
     }
 
     public async Task DeletePictureAsync(string noteId, string pictureId)
