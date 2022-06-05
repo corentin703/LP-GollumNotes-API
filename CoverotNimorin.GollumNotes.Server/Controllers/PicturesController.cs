@@ -9,7 +9,7 @@ namespace CoverotNimorin.GollumNotes.Server.Controllers;
 
 [ApiController]
 [CustomAuthorize]
-[Route("/api/[controller]/{noteId}")]
+[Route("/api/notes/{noteId}/[controller]")]
 public class PicturesController : ControllerBase
 {
     private readonly IPictureService _pictureService;
