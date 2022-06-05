@@ -1,5 +1,6 @@
 using CoverotNimorin.GollumNotes.Server.Contracts.Services;
 using CoverotNimorin.GollumNotes.Server.Models.Auth;
+using CoverotNimorin.GollumNotes.Server.Payloads;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoverotNimorin.GollumNotes.Server.Controllers;
@@ -22,13 +23,13 @@ public class AuthController : ControllerBase
         if (response == null)
             return BadRequest("Identifiants invalides");
 
-        return Ok(response);
+        return Ok(new ResultPayload<LoginResponse>(response));
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync(RegisterRequest model)
     {
         RegisterResponse response = await _authService.RegisterAsync(model);
-        return Ok(response);
+        return Ok(new ResultPayload<RegisterResponse>(response));
     }
 }
