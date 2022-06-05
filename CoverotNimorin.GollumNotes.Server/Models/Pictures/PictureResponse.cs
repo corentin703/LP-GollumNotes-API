@@ -19,4 +19,11 @@ public class PictureResponse
         ContentType = picture.ContentType;
         CreatedAt = picture.CreatedAt.ToLocalTime();
     }
+
+    public PictureResponse(PictureFullResponse fullResponse)
+    {
+        Id = fullResponse.Id;
+        ContentType = fullResponse.ContentType;
+        CreatedAt = fullResponse.CreatedAt;
+    }
 }

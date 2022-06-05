@@ -30,6 +30,13 @@ public class PicturesController : ControllerBase
     public async Task<IActionResult> GetById(string noteId, string pictureId)
     {
         PictureFullResponse picture = await _pictureService.GetById(noteId, pictureId);
+        return Ok(new PictureResponse(picture));
+    }
+    
+    [HttpGet("{pictureId}/content")]
+    public async Task<IActionResult> GetContentById(string noteId, string pictureId)
+    {
+        PictureFullResponse picture = await _pictureService.GetById(noteId, pictureId);
         return File(picture.Content, picture.ContentType);
     }
 
