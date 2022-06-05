@@ -1,10 +1,10 @@
-using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CoverotNimorin.GollumNotes.Server.Models.Notes;
 
 public class UpdateNoteRequest
 {
-    [Required]
+    [JsonIgnore]
     public string Id { get; set; } = string.Empty;
     
     public string? Title { get; set; }

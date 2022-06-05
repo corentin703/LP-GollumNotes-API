@@ -43,9 +43,10 @@ public class NotesController : ControllerBase
         );
     }
     
-    [HttpPut]
-    public async Task<IActionResult> Update(UpdateNoteRequest model)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(string id, UpdateNoteRequest model)
     {
+        model.Id = id;
         await _noteService.UpdateNoteAsync(model);
         return NoContent();
     }
