@@ -3,6 +3,7 @@ using System.Text;
 using CoverotNimorin.GollumNotes.Server.Configuration;
 using CoverotNimorin.GollumNotes.Server.Constants;
 using CoverotNimorin.GollumNotes.Server.Contracts.Repositories.Entities;
+using CoverotNimorin.GollumNotes.Server.Exceptions.Auth;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -31,27 +32,34 @@ public class JwtAuthMiddleware
 
     private async Task AttachUserToContextAsync(HttpContext context, IUserRepository userRepository, string token)
     {
-        JwtSecurityTokenHandler tokenHandler = new();
-        byte[] key = Encoding.ASCII.GetBytes(_appConfiguration.Jwt.Secret);
-        
-        tokenHandler.ValidateToken(
-            token,
-            new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                ClockSkew = TimeSpan.Zero
-            }, 
-            out SecurityToken validatedToken
-        );
+        try
+        {
+            JwtSecurityTokenHandler tokenHandler = new();
+            byte[] key = Encoding.ASCII.GetBytes(_appConfiguration.Jwt.Secret);
 
-        JwtSecurityToken jwtToken = (JwtSecurityToken)validatedToken;
-        string userId = jwtToken.Claims.First(x => x.Type == "id").Value;
+            tokenHandler.ValidateToken(
+                token,
+                new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+                    ClockSkew = TimeSpan.Zero
+                },
+                out SecurityToken validatedToken
+            );
 
-        // attach user to context on successful jwt validation
-        context.Items[AuthConstants.HttpContextCurrentUser] = await userRepository.GetByIdAsync(userId);
+            JwtSecurityToken jwtToken = (JwtSecurityToken) validatedToken;
+            string userId = jwtToken.Claims.First(x => x.Type == "id").Value;
+
+            // attach user to context on successful jwt validation
+            context.Items[AuthConstants.HttpContextCurrentUser] = await userRepository.GetByIdAsync(userId);
+        }
+        catch (SecurityTokenValidationException)
+        {
+            throw new InvalidTokenException();
+        }
     }
 }
