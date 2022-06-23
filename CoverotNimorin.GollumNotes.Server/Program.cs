@@ -90,7 +90,7 @@ using (var scope = app.Services.CreateScope())
     logger.LogInformation("Database up to work !");
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<JwtAuthMiddleware>();

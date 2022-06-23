@@ -57,7 +57,7 @@ public class JwtAuthMiddleware
             // attach user to context on successful jwt validation
             context.Items[AuthConstants.HttpContextCurrentUser] = await userRepository.GetByIdAsync(userId);
         }
-        catch (SecurityTokenValidationException)
+        catch (Exception)
         {
             throw new InvalidTokenException();
         }

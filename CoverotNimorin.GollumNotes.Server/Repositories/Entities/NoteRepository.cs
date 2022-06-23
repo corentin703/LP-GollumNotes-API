@@ -19,6 +19,7 @@ public class NoteRepository : BaseEntityRepository<Note>, INoteRepository
             .Where(
                 note => note.UserId == userId
             )
+            .Include(note => note.Pictures)
             .ToListAsync();
     }
 
